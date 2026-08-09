@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kokakola · Premium Card System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 40px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .input-modern {
+            border: 2px solid #e5e7eb;
+            padding: 10px 16px;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-modern:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .status-dot.active {
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .status-dot.pending {
+            background: #f59e0b;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+
+        .status-dot.blocked {
+            background: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.8);
+        }
+
+        @media (max-width: 768px) {
+            .glass {
+                padding: 20px;
+            }
+            .glass-card {
+                padding: 16px;
+            }
+            .grid-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-number {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .login-container {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .transaction-item {
+            background: #f9fafb;
+            padding: 10px 16px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .transaction-item:hover {
+            background: #f3f4f6;
+            transform: translateX(5px);
+        }
+
+        .payment-code {
+            background: #f3f4f6;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-align: center;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .payment-code:hover {
+            background: #e5e7eb;
+            transform: scale(1.02);
+        }
+
+        .payment-code.copied {
+            background: #10b981;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        // ============================================
+        // DB - База данных
+        // ============================================
+        class DB {
+            constructor() {
+                const saved = localStorage.getItem('kokakola_db');
+                if (saved) {
+                    this.data = JSON.parse(saved);
+                } else {
+                    this.data = this.getDefaults();
+                }
+                this.cards = this.data.cards || [];
+                this.businesses = this.data.businesses || [];
+                this.transactions = this.data.transactions || [];
+                this.credits = this.data.credits || [];
+                this.paymentCodes = this.data.paymentCodes || [];
+                this.lastPaymentCode = this.data.lastPaymentCode || null;
+                this.currentUser = this.data.currentUser || null;
+                this.currentBusiness = this.data.currentBusiness || null;
+                this.isAdmin = this.data.isAdmin || false;
+            }
+
+            getDefaults() {
+                return {
+                    cards: [{
+                        number: 'KOKA-1111-2222',
+                        balance: 1000,
+                        blocked: false,
+                        status: 'active',
+                        owner: 'Алексей',
+                        transactions: [],
+                        lastTaxDate: '',
+                        creditLimit: 5000,
+                        creditUsed: 0,
+                        creditRating: 4.5,
+                        createdAt: new Date().toISOString()
+                    }, {
+                        number: 'KOKA-3333-4444',
+                        balance: 500,
+                        blocked: false,
+                        status: 'active',
+                        owner: 'Мария',
+                        transactions: [],
+                        lastTaxDate: '',
+                        creditLimit: 3000,
+                        creditUsed: 0,
+                        creditRating: 3.8,
+                        createdAt: new Date().toISOString()
+                    }],
+                    businesses: [{
+                        id: 'b1',
+                        login: 'shop1',
+                        password: 'pass1',
+                        name: 'Магазин у дома',
+                        todayEarn: 0,
+                        blockedCards: [],
+                        fines: [],
+                        rating: 5,
+                        transactions: []
+                    }],
+                    transactions: [],
+                    credits: [],
+                    paymentCodes: [],
+                    lastPaymentCode: null,
+                    currentUser: null,
+                    currentBusiness: null,
+                    isAdmin: false
+                };
+            }
+
+            save() {
+                this.data.cards = this.cards;
+                this.data.businesses = this.businesses;
+                this.data.transactions = this.transactions;
+                this.data.credits = this.credits;
+                this.data.paymentCodes = this.paymentCodes;
+                this.data.lastPaymentCode = this.lastPaymentCode;
+                this.data.currentUser = this.currentUser;
+                this.data.currentBusiness = this.currentBusiness;
+                this.data.isAdmin = this.isAdmin;
+                localStorage.setItem('kokakola_db', JSON.stringify(this.data));
+            }
+
+            findCard(number) {
+                return this.cards.find(c => c.number === number);
+            }
+
+            addCard(number, owner) {
+                if (this.findCard(number)) return false;
+                const card = {
+                    number,
+                    owner,
+                    balance: 0,
+                    blocked: false,
+                    status: 'pending',
+                    creditLimit: 0,
+                    creditUsed: 0,
+                    creditRating: 0,
+                    transactions: [],
+                    lastTaxDate: '',
+                    createdAt: new Date().toISOString()
+                };
+                this.cards.push(card);
+                this.save();
+                return true;
+            }
+
+            blockCard(number) {
+                const card = this.findCard(number);
+                if (card) {
+                    card.blocked = !card.blocked;
+                    card.status = card.blocked ? 'blocked' : 'active';
+                    this.save();
+                    return true;
+                }
+                return false;
+            }
+
+            approveCard(number) {
+                const card = this.findCard(number);
+                if (card && card.status === 'pending') {
+                    card.status = 'active';
+                    card.blocked = false;
+                    card.creditLimit = 1000;
+                    this.save();
+                    return true;
+                }
+                return false;
+            }
+
+            addBalance(number, amount) {
+                const card = this.findCard(number);
+                if (card && card.status === 'active') {
+                    card.balance += amount;
+                    this.save();
+                    return true;
+                }
+                return false;
+            }
+
+            deductBalance(number, amount) {
+                const card = this.findCard(number);
+                if (card && card.status === 'active' && card.balance >= amount) {
+                    card.balance -= amount;
+                    this.save();
+                    return true;
+                }
+                return false;
+            }
+
+            addBusiness(login, password, name) {
+                if (this.businesses.find(b => b.login === login)) return false;
+                const biz = {
+                    id: 'b' + Date.now(),
+                    login,
+                    password,
+                    name,
+                    todayEarn: 0,
+                    blockedCards: [],
+                    fines: [],
+                    rating: 5,
+                    transactions: []
+                };
+                this.businesses.push(biz);
+                this.save();
+                return true;
+            }
+
+            giveCredit(cardNumber, amount) {
+                const card = this.findCard(cardNumber);
+                if (!card || card.status !== 'active') {
+                    return { success: false, msg: 'Карта не активна' };
+                }
+                const newTotal = (card.creditUsed || 0) + amount;
+                if (newTotal > (card.creditLimit || 0)) {
+                    return { success: false, msg: 'Превышен кредитный лимит' };
+                }
+
+                card.creditUsed = newTotal;
+                card.balance += amount;
+                card.transactions.push({
+                    amount: amount,
+                    desc: `Кредит ${amount}₽`,
+                    date: new Date().toISOString()
+                });
+
+                this.credits.push({
+                    cardNumber,
+                    amount,
+                    date: new Date().toISOString(),
+                    repaid: false
+                });
+
+                this.save();
+                return { success: true, msg: `Кредит ${amount}₽ выдан` };
+            }
+
+            repayCredit(cardNumber, amount) {
+                const card = this.findCard(cardNumber);
+                if (!card) return { success: false, msg: 'Карта не найдена' };
+                if (card.balance < amount) return { success: false, msg: 'Недостаточно средств' };
+                if ((card.creditUsed || 0) < amount) return { success: false, msg: 'Сумма превышает долг' };
+
+                card.creditUsed -= amount;
+                card.balance -= amount;
+                card.transactions.push({
+                    amount: -amount,
+                    desc: `Погашение кредита ${amount}₽`,
+                    date: new Date().toISOString()
+                });
+
+                const credits = this.credits.filter(c => c.cardNumber === cardNumber && !c.repaid);
+                let remaining = amount;
+                for (const credit of credits) {
+                    if (remaining <= 0) break;
+                    if (credit.amount <= remaining) {
+                        credit.repaid = true;
+                        remaining -= credit.amount;
+                    } else {
+                        credit.amount -= remaining;
+                        remaining = 0;
+                    }
+                }
+
+                this.updateCreditRating(cardNumber);
+                this.save();
+                return { success: true, msg: `Кредит погашен на ${amount}₽` };
+            }
+
+            updateCreditRating(cardNumber) {
+                const card = this.findCard(cardNumber);
+                if (!card) return;
+                const totalCredits = this.credits.filter(c => c.cardNumber === cardNumber);
+                if (totalCredits.length === 0) {
+                    card.creditRating = 0;
+                } else {
+                    const repaid = totalCredits.filter(c => c.repaid).length;
+                    card.creditRating = Math.min(5, (repaid / totalCredits.length) * 5);
+                }
+                this.save();
+            }
+
+            // ===== НОВЫЕ МЕТОДЫ ДЛЯ АНОНИМНЫХ КОДОВ =====
+            generatePaymentCode(cardNumber) {
+                const card = this.findCard(cardNumber);
+                if (!card || card.status !== 'active') return null;
+
+                const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+                const paymentCode = {
+                    code,
+                    cardNumber,
+                    amount: 0,
+                    used: false,
+                    createdAt: new Date().toISOString(),
+                    expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString() // 5 минут
+                };
+                this.paymentCodes.push(paymentCode);
+                this.lastPaymentCode = code;
+                this.save();
+                return code;
+            }
+
+            usePaymentCode(code, amount, bizId) {
+                const paymentCode = this.paymentCodes.find(p => p.code === code && !p.used);
+                if (!paymentCode) return { success: false, msg: 'Код не найден или уже использован' };
+                
+                // Проверка срока действия
+                if (new Date(paymentCode.expiresAt) < new Date()) {
+                    return { success: false, msg: 'Код истек' };
+                }
+
+                const card = this.findCard(paymentCode.cardNumber);
+                if (!card) return { success: false, msg: 'Карта не найдена' };
+                if (card.status !== 'active') return { success: false, msg: 'Карта не активна' };
+                if (card.balance < amount) return { success: false, msg: 'Недостаточно средств' };
+
+                const biz = this.businesses.find(b => b.id === bizId);
+                if (!biz) return { success: false, msg: 'Бизнес не найден' };
+
+                // Списание
+                card.balance -= amount;
+                biz.todayEarn = (biz.todayEarn || 0) + amount;
+                if (!biz.transactions) biz.transactions = [];
+                biz.transactions.push({
+                    cardNumber: paymentCode.cardNumber,
+                    amount: amount,
+                    desc: `Оплата по коду ${code}`,
+                    date: new Date().toISOString()
+                });
+                card.transactions.push({
+                    amount: -amount,
+                    desc: `Оплата в ${biz.name} (код ${code})`,
+                    date: new Date().toISOString()
+                });
+
+                paymentCode.used = true;
+                paymentCode.amount = amount;
+                paymentCode.bizId = bizId;
+
+                this.transactions.push({
+                    bizId: bizId,
+                    cardNum: paymentCode.cardNumber,
+                    amount: amount,
+                    desc: `Оплата по коду ${code} в ${biz.name}`,
+                    date: new Date().toISOString()
+                });
+
+                this.save();
+                return { success: true, msg: `Оплата ${amount}₽ по коду ${code}`, cardNumber: paymentCode.cardNumber };
+            }
+
+            // ===== МЕТОД ДЛЯ ВОЗВРАТА =====
+            refundPayment(bizId, transactionId) {
+                const biz = this.businesses.find(b => b.id === bizId);
+                if (!biz) return { success: false, msg: 'Бизнес не найден' };
+
+                const transaction = biz.transactions?.find(t => t.id === transactionId);
+                if (!transaction) return { success: false, msg: 'Транзакция не найдена' };
+                if (transaction.refunded) return { success: false, msg: 'Возврат уже выполнен' };
+
+                const card = this.findCard(transaction.cardNumber);
+                if (!card) return { success: false, msg: 'Карта не найдена' };
+
+                // Возврат средств
+                card.balance += transaction.amount;
+                biz.todayEarn = Math.max(0, (biz.todayEarn || 0) - transaction.amount);
+                transaction.refunded = true;
+                transaction.refundDate = new Date().toISOString();
+
+                card.transactions.push({
+                    amount: transaction.amount,
+                    desc: `Возврат от ${biz.name}`,
+                    date: new Date().toISOString()
+                });
+
+                this.save();
+                return { success: true, msg: `Возврат ${transaction.amount}₽ выполнен` };
+            }
+
+            // ===== СОХРАНЕНИЕ СОСТОЯНИЯ СЕССИИ =====
+            setSession(user, business, admin) {
+                this.currentUser = user ? user.number : null;
+                this.currentBusiness = business ? business.id : null;
+                this.isAdmin = admin || false;
+                this.save();
+            }
+
+            getSession() {
+                return {
+                    currentUser: this.currentUser,
+                    currentBusiness: this.currentBusiness,
+                    isAdmin: this.isAdmin
+                };
+            }
+
+            clearSession() {
+                this.currentUser = null;
+                this.currentBusiness = null;
+                this.isAdmin = false;
+                this.save();
+            }
+
+            getUserCard() {
+                if (!this.currentUser) return null;
+                return this.findCard(this.currentUser);
+            }
+
+            getBusiness() {
+                if (!this.currentBusiness) return null;
+                return this.businesses.find(b => b.id === this.currentBusiness);
+            }
+        }
+
+        // ============================================
+        // APP - Основное приложение
+        // ============================================
+        const app = document.getElementById('app');
+
+        window.KOKA = {
+            db: new DB(),
+            currentCard: null,
+            currentBusiness: null,
+            isAdmin: false
+        };
+
+        // Восстановление сессии
+        function restoreSession() {
+            const session = window.KOKA.db.getSession();
+            if (session.isAdmin) {
+                window.KOKA.isAdmin = true;
+                renderAdmin();
+                return true;
+            }
+            if (session.currentBusiness) {
+                const biz = window.KOKA.db.getBusiness();
+                if (biz) {
+                    window.KOKA.currentBusiness = biz;
+                    renderBusiness(biz);
+                    return true;
+                }
+            }
+            if (session.currentUser) {
+                const card = window.KOKA.db.getUserCard();
+                if (card && card.status === 'active') {
+                    window.KOKA.currentCard = card;
+                    renderUser(card);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function renderLogin() {
+            window.KOKA.db.clearSession();
+            window.KOKA.currentCard = null;
+            window.KOKA.currentBusiness = null;
+            window.KOKA.isAdmin = false;
+
+            app.innerHTML = `
+                <div class="glass slide-up login-container">
+                    <div style="text-align: center; margin-bottom: 32px;">
+                        <div style="font-size: 64px; margin-bottom: 8px;">🥤</div>
+                        <h1 style="color: white; font-size: 42px; font-weight: 900;">KOKAKOLA</h1>
+                        <p style="color: rgba(255,255,255,0.8); font-size: 18px; margin-top: 4px;">Premium Card System</p>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <button onclick="handleAdminLogin()" class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            🔐 Войти как АДМИН
+                        </button>
+                        <button onclick="handleBusinessLogin()" class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            🏪 Войти как БИЗНЕС
+                        </button>
+                        <button onclick="handleUserLogin()" class="btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            💳 Войти по карте
+                        </button>
+                        <button onclick="handleCreateCard()" class="btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #34d399, #059669);">
+                            ✨ Создать карту
+                        </button>
+                    </div>
+
+                    <div id="loginError" style="color: #fca5a5; margin-top: 16px; text-align: center; font-size: 14px;"></div>
+                    <div id="loginSuccess" style="color: #6ee7b7; margin-top: 16px; text-align: center; font-size: 14px;"></div>
+                </div>
+            `;
+        }
+
+        window.navigateToLogin = renderLogin;
+
+        // Обработчики входа
+        window.handleAdminLogin = () => {
+            const pwd = prompt('Введите пароль админа:');
+            if (pwd === 'admin1423') {
+                window.KOKA.isAdmin = true;
+                window.KOKA.db.setSession(null, null, true);
+                renderAdmin();
+            } else {
+                document.getElementById('loginError').textContent = '❌ Неверный пароль';
+            }
+        };
+
+        window.handleBusinessLogin = () => {
+            const login = prompt('Логин бизнеса:');
+            const pwd = prompt('Пароль:');
+            const biz = window.KOKA.db.businesses.find(b => b.login === login && b.password === pwd);
+            if (biz) {
+                window.KOKA.currentBusiness = biz;
+                window.KOKA.db.setSession(null, biz, false);
+                renderBusiness(biz);
+            } else {
+                document.getElementById('loginError').textContent = '❌ Неверные данные бизнеса';
+            }
+        };
+
+        window.handleUserLogin = () => {
+            const cardNum = prompt('Введите номер карты:');
+            const card = window.KOKA.db.cards.find(c => c.number === cardNum);
+            if (card) {
+                if (card.blocked || card.status === 'blocked') {
+                    document.getElementById('loginError').textContent = '❌ Карта заблокирована';
+                    return;
+                }
+                if (card.status === 'pending') {
+                    document.getElementById('loginError').textContent = '⏳ Карта ожидает одобрения админа';
+                    return;
+                }
+                window.KOKA.currentCard = card;
+                window.KOKA.db.setSession(card, null, false);
+                renderUser(card);
+            } else {
+                document.getElementById('loginError').textContent = '❌ Карта не найдена';
+            }
+        };
+
+        window.handleCreateCard = () => {
+            const owner = prompt('Введите имя владельца:');
+            if (!owner) return;
+            const number = 'KOKA-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+            const card = {
+                number,
+                owner,
+                balance: 0,
+                blocked: false,
+                status: 'pending',
+                creditLimit: 0,
+                creditUsed: 0,
+                creditRating: 0,
+                transactions: [],
+                lastTaxDate: '',
+                createdAt: new Date().toISOString()
+            };
+            window.KOKA.db.cards.push(card);
+            window.KOKA.db.save();
+            document.getElementById('loginSuccess').innerHTML = `✅ Карта создана!<br>Номер: <strong>${number}</strong><br>Ожидайте одобрения админа`;
+        };
+
+        // ============================================
+        // ADMIN - Панель администратора
+        // ============================================
+        function renderAdmin() {
+            const db = window.KOKA.db;
+            app.innerHTML = `
+                <div class="glass-card slide-up">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f3f4f6; padding-bottom: 16px;">
+                        <h2 style="font-size: 28px; font-weight: 900; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            🔐 Админ-панель
+                        </h2>
+                        <button onclick="navigateToLogin()" style="background: #f3f4f6; padding: 8px 20px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                            Выйти
+                        </button>
+                    </div>
+
+                    <div class="grid-cards" style="margin-top: 20px;">
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 16px;">
+                            <h3 style="font-weight: 700; font-size: 16px; margin-bottom: 12px;">💳 Добавить карту</h3>
+                            <input id="newCardNum" placeholder="Номер карты" class="input-modern" style="margin-bottom: 8px;">
+                            <input id="newCardOwner" placeholder="Владелец" class="input-modern" style="margin-bottom: 8px;">
+                            <button id="addCardBtn" class="btn-primary">Добавить</button>
+                            <div id="cardMsg" style="margin-top: 8px; font-size: 13px; color: #6b7280;"></div>
+                        </div>
+
+                        <div style="background: #f0fdf4; padding: 16px; border-radius: 16px;">
+                            <h3 style="font-weight: 700; font-size: 16px; margin-bottom: 12px;">💰 Баланс</h3>
+                            <input id="cardNumBal" placeholder="Номер карты" class="input-modern" style="margin-bottom: 8px;">
+                            <input id="amountBal" type="number" placeholder="Сумма" class="input-modern" style="margin-bottom: 8px;">
+                            <div style="display: flex; gap: 8px;">
+                                <button id="addBalBtn" style="flex: 1; background: #10b981; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: 700; cursor: pointer;">➕ Прибавить</button>
+                                <button id="subBalBtn" style="flex: 1; background: #ef4444; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: 700; cursor: pointer;">➖ Убавить</button>
+                            </div>
+                            <div id="balMsg" style="margin-top: 8px; font-size: 13px; color: #6b7280;"></div>
+                        </div>
+
+                        <div style="background: #faf5ff; padding: 16px; border-radius: 16px;">
+                            <h3 style="font-weight: 700; font-size: 16px; margin-bottom: 12px;">🏦 Выдать кредит</h3>
+                            <input id="creditCardNum" placeholder="Номер карты" class="input-modern" style="margin-bottom: 8px;">
+                            <input id="creditAmount" type="number" placeholder="Сумма" class="input-modern" style="margin-bottom: 8px;">
+                            <button id="giveCreditBtn" class="btn-primary" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">Выдать</button>
+                            <div id="creditMsg" style="margin-top: 8px; font-size: 13px; color: #6b7280;"></div>
+                        </div>
+
+                        <div style="background: #fffbeb; padding: 16px; border-radius: 16px;">
+                            <h3 style="font-weight: 700; font-size: 16px; margin-bottom: 12px;">🔒 Управление</h3>
+                            <input id="blockCardNum" placeholder="Номер карты" class="input-modern" style="margin-bottom: 8px;">
+                            <div style="display: flex; gap: 8px;">
+                                <button id="blockBtn" style="flex: 1; background: #f59e0b; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: 700; cursor: pointer;">🚫 Блок</button>
+                                <button id="approveBtn" style="flex: 1; background: #10b981; color: white; border: none; padding: 10px; border-radius: 12px; font-weight: 700; cursor: pointer;">✅ Одобрить</button>
+                            </div>
+                            <div id="blockMsg" style="margin-top: 8px; font-size: 13px; color: #6b7280;"></div>
+                        </div>
+
+                        <div style="background: #ecfeff; padding: 16px; border-radius: 16px;">
+                            <h3 style="font-weight: 700; font-size: 16px; margin-bottom: 12px;">🏢 Бизнес</h3>
+                            <input id="bizLogin" placeholder="Логин" class="input-modern" style="margin-bottom: 8px;">
+                            <input id="bizPass" placeholder="Пароль" class="input-modern" style="margin-bottom: 8px;">
+                            <input id="bizName" placeholder="Название" class="input-modern" style="margin-bottom: 8px;">
+                            <button id="addBizBtn" class="btn-primary" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">Создать</button>
+                            <div id="bizMsg" style="margin-top: 8px; font-size: 13px; color: #6b7280;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px; border-top: 2px solid #f3f4f6; padding-top: 20px;">
+                        <h3 style="font-weight: 700; font-size: 18px; margin-bottom: 12px;">📋 Все карты</h3>
+                        <div id="cardList" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
+                            ${db.cards.map(c => `
+                                <div style="background: #f9fafb; padding: 12px 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <span class="card-number" style="font-size: 14px;">${c.number}</span>
+                                        <span style="color: #6b7280; font-size: 14px; margin-left: 8px;">${c.owner}</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <span style="font-weight: 700;">${c.balance}₽</span>
+                                        <span class="status-dot ${c.status}"></span>
+                                        <span style="font-size: 12px; background: #f3f4f6; padding: 2px 10px; border-radius: 12px;">⭐ ${(c.creditRating || 0).toFixed(1)}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('addCardBtn').onclick = () => {
+                const num = document.getElementById('newCardNum').value.trim();
+                const owner = document.getElementById('newCardOwner').value.trim();
+                if (db.addCard(num, owner)) {
+                    document.getElementById('cardMsg').textContent = '✅ Карта добавлена';
+                    renderAdmin();
+                } else {
+                    document.getElementById('cardMsg').textContent = '❌ Ошибка: дубликат';
+                }
+            };
+
+            document.getElementById('addBalBtn').onclick = () => {
+                const num = document.getElementById('cardNumBal').value.trim();
+                const amt = Number(document.getElementById('amountBal').value);
+                if (db.addBalance(num, amt)) {
+                    document.getElementById('balMsg').textContent = '✅ Баланс увеличен';
+                    renderAdmin();
+                } else {
+                    document.getElementById('balMsg').textContent = '❌ Карта не найдена или не активна';
+                }
+            };
+
+            document.getElementById('subBalBtn').onclick = () => {
+                const num = document.getElementById('cardNumBal').value.trim();
+                const amt = Number(document.getElementById('amountBal').value);
+                if (db.deductBalance(num, amt)) {
+                    document.getElementById('balMsg').textContent = '✅ Баланс уменьшен';
+                    renderAdmin();
+                } else {
+                    document.getElementById('balMsg').textContent = '❌ Недостаточно средств';
+                }
+            };
+
+            document.getElementById('blockBtn').onclick = () => {
+                const num = document.getElementById('blockCardNum').value.trim();
+                if (db.blockCard(num)) {
+                    document.getElementById('blockMsg').textContent = '🔄 Статус изменён';
+                    renderAdmin();
+                } else {
+                    document.getElementById('blockMsg').textContent = '❌ Карта не найдена';
+                }
+            };
+
+            document.getElementById('approveBtn').onclick = () => {
+                const num = document.getElementById('blockCardNum').value.trim();
+                if (db.approveCard(num)) {
+                    document.getElementById('blockMsg').textContent = '✅ Карта одобрена';
+                    renderAdmin();
+                } else {
+                    document.getElementById('blockMsg').textContent = '❌ Карта не найдена или уже активна';
+                }
+            };
+
+            document.getElementById('giveCreditBtn').onclick = () => {
+                const num = document.getElementById('creditCardNum').value.trim();
+                const amt = Number(document.getElementById('creditAmount').value);
+                const result = db.giveCredit(num, amt);
+                document.getElementById('creditMsg').textContent = result.success ? '✅ ' + result.msg : '❌ ' + result.msg;
+                if (result.success) renderAdmin();
+            };
+
+            document.getElementById('addBizBtn').onclick = () => {
+                const login = document.getElementById('bizLogin').value.trim();
+                const pass = document.getElementById('bizPass').value.trim();
+                const name = document.getElementById('bizName').value.trim();
+                if (db.addBusiness(login, pass, name)) {
+                    document.getElementById('bizMsg').textContent = '✅ Бизнес создан';
+                    renderAdmin();
+                } else {
+                    document.getElementById('bizMsg').textContent = '❌ Логин занят';
+                }
+            };
+        }
+
+        // ============================================
+        // BUSINESS - Панель бизнеса (с возвратами)
+        // ============================================
+        function renderBusiness(biz) {
+            const db = window.KOKA.db;
+            const todayEarn = biz.todayEarn || 0;
+            const blockedCount = biz.blockedCards?.length || 0;
+            const rating = biz.rating || 5;
+
+            app.innerHTML = `
+                <div class="glass-card slide-up">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f3f4f6; padding-bottom: 16px;">
+                        <h2 style="font-size: 28px; font-weight: 900; background: linear-gradient(135deg, #f59e0b, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            🏪 ${biz.name}
+                        </h2>
+                        <button onclick="navigateToLogin()" style="background: #f3f4f6; padding: 8px 20px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer;">Выйти</button>
+                    </div>
+
+                    <div class="grid-cards" style="margin-top: 20px;">
+                        <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 16px; border-radius: 16px;">
+                            <p style="color: #92400e; font-size: 14px;">💰 Заработано сегодня</p>
+                            <p style="font-size: 32px; font-weight: 900; color: #78350f;">${todayEarn} ₽</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fecaca, #fca5a5); padding: 16px; border-radius: 16px;">
+                            <p style="color: #991b1b; font-size: 14px;">🚫 Заблокированные карты</p>
+                            <p style="font-size: 32px; font-weight: 900; color: #7f1d1d;">${blockedCount}</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #ddd6fe, #c4b5fd); padding: 16px; border-radius: 16px;">
+                            <p style="color: #5b21b6; font-size: 14px;">⭐ Рейтинг</p>
+                            <p style="font-size: 32px; font-weight: 900; color: #4c1d95;">${rating.toFixed(1)}</p>
+                            <div style="color: #fbbf24; font-size: 20px;">${'★'.repeat(Math.round(rating))}${'☆'.repeat(5 - Math.round(rating))}</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-cards" style="margin-top: 20px;">
+                        <div style="background: #f0fdf4; padding: 16px; border-radius: 16px;">
+                            <h3 style="font-weight: 700; font-size: 16px; margin-bottom: 12px;">💳 Оплата по коду</h3>
+                            <input id="payCode" placeholder="Код оплаты" class="input-modern" style="margin-bottom: 8px;">
+                            <input id="payAmount" type="number" placeholder="Сумма" class="input-modern" style="margin-bottom: 8px;">
+                            <button id="payByCodeBtn" class="btn-primary">💸 Оплатить по коду</button>
+                            <div id="payMsg" style="margin-top: 8px; font-size: 13px; color: #6b7280;"></div>
+                        </div>
+
+                        <div style="background: #fef2f2; padding: 16px; border-radius: 16px;">
+                            <h3 style="font-weight: 700; font-size: 16px; margin-bottom: 12px;">🔒 Запретить карту</h3>
+                            <input id="blockCardForBiz" placeholder="Номер карты" class="input-modern" style="margin-bottom: 8px;">
+                            <button id="blockForBizBtn" style="width: 100%; background: #ef4444; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer;">🚫 Заблокировать</button>
+                            <div id="blockBizMsg" style="margin-top: 8px; font-size: 13px; color: #6b7280;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px; border-top: 2px solid #f3f4f6; padding-top: 20px;">
+                        <h3 style="font-weight: 700; font-size: 18px; margin-bottom: 12px;">📋 История операций</h3>
+                        <div id="bizTransactions" style="max-height: 200px; overflow-y: auto;">
+                            ${(biz.transactions || []).slice().reverse().map((t, index) => `
+                                <div class="transaction-item" style="${t.refunded ? 'opacity: 0.6; background: #fef2f2;' : ''}">
+                                    <span>${t.desc || 'Операция'}</span>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="font-weight: 700; color: ${t.refunded ? '#ef4444' : '#059669'};">${t.refunded ? '↩' : '+'}${t.amount}₽</span>
+                                        ${!t.refunded ? `<button onclick="handleRefund('${biz.id}', ${index})" style="background: #ef4444; color: white; border: none; padding: 4px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;">↩ Возврат</button>` : '<span style="font-size: 12px; color: #ef4444;">Возвращено</span>'}
+                                    </div>
+                                </div>
+                            `).join('') || '<div style="color: #9ca3af; text-align: center; padding: 20px;">Нет операций</div>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('payByCodeBtn').onclick = () => {
+                const code = document.getElementById('payCode').value.trim().toUpperCase();
+                const amt = Number(document.getElementById('payAmount').value);
+                const result = db.usePaymentCode(code, amt, biz.id);
+                document.getElementById('payMsg').textContent = result.success ? '✅ ' + result.msg : '❌ ' + result.msg;
+                if (result.success) renderBusiness(biz);
+            };
+
+            document.getElementById('blockForBizBtn').onclick = () => {
+                const num = document.getElementById('blockCardForBiz').value.trim();
+                if (!biz.blockedCards) biz.blockedCards = [];
+                if (!biz.blockedCards.includes(num)) {
+                    biz.blockedCards.push(num);
+                    db.save();
+                    document.getElementById('blockBizMsg').textContent = '🚫 Карта запрещена';
+                    renderBusiness(biz);
+                } else {
+                    document.getElementById('blockBizMsg').textContent = 'Уже в списке';
+                }
+            };
+        }
+
+        // Обработчик возврата
+        window.handleRefund = (bizId, index) => {
+            const db = window.KOKA.db;
+            const biz = db.businesses.find(b => b.id === bizId);
+            if (!biz) return;
+            
+            const transaction = biz.transactions?.[index];
+            if (!transaction) return;
+            
+            if (transaction.refunded) {
+                alert('Возврат уже выполнен');
+                return;
+            }
+
+            const result = db.refundPayment(bizId, index);
+            alert(result.msg);
+            if (result.success) renderBusiness(biz);
+        };
+
+        // ============================================
+        // USER - Панель пользователя (с генерацией кода)
+        // ============================================
+        function renderUser(card) {
+            const db = window.KOKA.db;
+            const rating = card.creditRating || 0;
+            const fullStars = Math.round(rating);
+            const emptyStars = 5 - fullStars;
+            const lastCode = db.lastPaymentCode || 'Нет кода';
+
+            app.innerHTML = `
+                <div class="glass-card slide-up">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f3f4f6; padding-bottom: 16px;">
+                        <div>
+                            <h2 style="font-size: 28px; font-weight: 900;">👋 ${card.owner}</h2>
+                            <p style="color: #6b7280; font-size: 14px;">Клиент с ${new Date(card.createdAt).toLocaleDateString()}</p>
+                        </div>
+                        <button onclick="navigateToLogin()" style="background: #f3f4f6; padding: 8px 20px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer;">Выйти</button>
+                    </div>
+
+                    <div class="grid-cards" style="margin-top: 20px;">
+                        <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 16px; border-radius: 16px;">
+                            <p style="color: #1e40af; font-size: 14px;">💳 Карта</p>
+                            <p class="card-number" style="font-size: 16px; font-weight: 700; color: #1e3a8a;">${card.number}</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); padding: 16px; border-radius: 16px;">
+                            <p style="color: #065f46; font-size: 14px;">💰 Баланс</p>
+                            <p style="font-size: 36px; font-weight: 900; color: #064e3b;">${card.balance} ₽</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #ede9fe, #c4b5fd); padding: 16px; border-radius: 16px;">
+                            <p style="color: #4c1d95; font-size: 14px;">🏦 Кредитный лимит</p>
+                            <p style="font-size: 24px; font-weight: 900; color: #4c1d95;">${card.creditLimit || 0} ₽</p>
+                            <p style="color: #6d28d9; font-size: 14px;">Использовано: ${card.creditUsed || 0} ₽</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 16px; border-radius: 16px;">
+                            <p style="color: #78350f; font-size: 14px;">⭐ Рейтинг</p>
+                            <p style="font-size: 28px; font-weight: 900; color: #78350f;">${rating.toFixed(1)}</p>
+                            <div style="color: #fbbf24; font-size: 20px;">${'★'.repeat(fullStars)}${'☆'.repeat(emptyStars)}</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-cards" style="margin-top: 20px;">
+                        <div style="background: #f0fdf4; padding: 16px; border-radius: 16px;">
+                            <h3 style="font-weight: 700; font-size: 16px; margin-bottom: 12px;">💳 Погасить кредит</h3>
+                            <input id="repayAmount" type="number" placeholder="Сумма" class="input-modern" style="margin-bottom: 8px;">
+                            <button id="repayBtn" style="width: 100%; background: #10b981; color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer;">💰 Погасить</button>
+                            <div id="repayMsg" style="margin-top: 8px; font-size: 13px; color: #6b7280;"></div>
+                        </div>
+
+                        <div style="background: #faf5ff; padding: 16px; border-radius: 16px;">
+                            <h3 style="font-weight: 700; font-size: 16px; margin-bottom: 12px;">🔐 Анонимный код</h3>
+                            <button id="generateCodeBtn" style="width: 100%; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer;">🎲 Сгенерировать код</button>
+                            <div id="codeDisplay" style="margin-top: 8px;">
+                                <p style="font-size: 12px; color: #6b7280;">Последний код:</p>
+                                <div class="payment-code" id="paymentCodeDisplay" onclick="copyPaymentCode()">${lastCode}</div>
+                                <p style="font-size: 11px; color: #9ca3af;">Код действует 5 минут, одноразовый</p>
+                            </div>
+                            <div id="codeMsg" style="margin-top: 8px; font-size: 13px; color: #6b7280;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px; border-top: 2px solid #f3f4f6; padding-top: 20px;">
+                        <h3 style="font-weight: 700; font-size: 18px; margin-bottom: 12px;">📋 История транзакций</h3>
+                        <div id="userTransactions" style="max-height: 200px; overflow-y: auto;">
+                            ${card.transactions?.slice().reverse().map(t => `
+                                <div class="transaction-item">
+                                    <span>${t.desc}</span>
+                                    <span style="font-weight: 700; ${t.amount < 0 ? 'color: #ef4444;' : 'color: #10b981;'}">${t.amount > 0 ? '+' : ''}${t.amount}₽</span>
+                                </div>
+                            `).join('') || '<div style="color: #9ca3af; text-align: center; padding: 20px;">Нет транзакций</div>'}
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px; color: #9ca3af; font-size: 12px; text-align: center;">
+                        💳 Ежедневное обслуживание: 35₽
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('repayBtn').onclick = () => {
+                const amt = Number(document.getElementById('repayAmount').value);
+                const result = db.repayCredit(card.number, amt);
+                document.getElementById('repayMsg').textContent = result.success ? '✅ ' + result.msg : '❌ ' + result.msg;
+                if (result.success) renderUser(card);
+            };
+
+            document.getElementById('generateCodeBtn').onclick = () => {
+                const code = db.generatePaymentCode(card.number);
+                if (code) {
+                    document.getElementById('paymentCodeDisplay').textContent = code;
+                    document.getElementById('paymentCodeDisplay').className = 'payment-code';
+                    document.getElementById('codeMsg').textContent = '✅ Код сгенерирован! Действует 5 минут';
+                    // Автокопирование
+                    navigator.clipboard.writeText(code).then(() => {
+                        document.getElementById('paymentCodeDisplay').classList.add('copied');
+                        document.getElementById('paymentCodeDisplay').textContent = '✅ Скопировано!';
+                        setTimeout(() => {
+                            document.getElementById('paymentCodeDisplay').textContent = code;
+                            document.getElementById('paymentCodeDisplay').classList.remove('copied');
+                        }, 2000);
+                    }).catch(() => {});
+                } else {
+                    document.getElementById('codeMsg').textContent = '❌ Ошибка генерации кода';
+                }
+            };
+        }
+
+        // Копирование кода
+        window.copyPaymentCode = () => {
+            const el = document.getElementById('paymentCodeDisplay');
+            const code = el.textContent;
+            if (code && code !== 'Нет кода' && !code.includes('Скопировано')) {
+                navigator.clipboard.writeText(code).then(() => {
+                    el.classList.add('copied');
+                    el.textContent = '✅ Скопировано!';
+                    setTimeout(() => {
+                        el.textContent = code;
+                        el.classList.remove('copied');
+                    }, 2000);
+                }).catch(() => {
+                    // Fallback
+                    const range = document.createRange();
+                    range.selectNode(el);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                    document.execCommand('copy');
+                    el.classList.add('copied');
+                    el.textContent = '✅ Скопировано!';
+                    setTimeout(() => {
+                        el.textContent = code;
+                        el.classList.remove('copied');
+                    }, 2000);
+                });
+            }
+        };
+
+        // ============================================
+        // ЗАПУСК
+        // ============================================
+        
+        // Пытаемся восстановить сессию, если нет - показываем логин
+        if (!restoreSession()) {
+            renderLogin();
+        }
+
+        // Ежедневный налог (проверка каждую минуту)
+        setInterval(() => {
+            const today = new Date().toDateString();
+            const db = window.KOKA.db;
+            db.cards.forEach(c => {
+                if (c.status === 'active' && c.lastTaxDate !== today) {
+                    c.balance = Math.max(0, c.balance - 35);
+                    c.lastTaxDate = today;
+                    c.transactions.push({
+                        amount: -35,
+                        desc: 'Обслуживание карты',
+                        date: new Date().toISOString()
+                    });
+                }
+            });
+            db.save();
+        }, 60000);
+
+        // Автоматическое обновление кодов (удаление просроченных)
+        setInterval(() => {
+            const db = window.KOKA.db;
+            const now = new Date();
+            db.paymentCodes = db.paymentCodes.filter(p => new Date(p.expiresAt) > now || p.used);
+            db.save();
+        }, 30000);
+    </script>
+</body>
+</html>
