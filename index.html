@@ -13,7 +13,6 @@
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        /* ===== ТЕМЫ ===== */
         :root {
             --bg-gradient-start: #667eea;
             --bg-gradient-end: #764ba2;
@@ -310,8 +309,11 @@
 
         .theme-toggle-container {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .login-title {
@@ -326,77 +328,40 @@
             color: rgba(255, 255, 255, 0.8);
         }
 
-        [data-theme="dark"] .glass-card h2,
-        [data-theme="dark"] .glass-card h3,
-        [data-theme="dark"] .glass-card p,
-        [data-theme="dark"] .glass-card span,
-        [data-theme="dark"] .glass-card div:not(.status-dot) {
-            color: var(--text-primary);
+        .github-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            border-radius: 8px;
+            background: var(--transaction-bg);
         }
 
-        [data-theme="dark"] .glass-card .status-dot {
-            color: initial;
+        .github-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
         }
 
-        [data-theme="dark"] .glass-card .transaction-item span {
-            color: var(--text-primary);
+        .github-status .dot.online {
+            background: #10b981;
         }
 
-        [data-theme="dark"] #cardList .card-number {
-            color: var(--text-primary);
+        .github-status .dot.offline {
+            background: #ef4444;
         }
 
-        [data-theme="dark"] .grid-cards > div[style*="background: #f8fafc"] {
-            background: #1a1a2e !important;
+        .github-status .dot.saving {
+            background: #f59e0b;
+            animation: pulse 1s infinite;
         }
 
-        [data-theme="dark"] .grid-cards > div[style*="background: #f0fdf4"] {
-            background: #0f2a1a !important;
-        }
-
-        [data-theme="dark"] .grid-cards > div[style*="background: #faf5ff"] {
-            background: #1a1030 !important;
-        }
-
-        [data-theme="dark"] .grid-cards > div[style*="background: #fffbeb"] {
-            background: #2a1f0a !important;
-        }
-
-        [data-theme="dark"] .grid-cards > div[style*="background: #ecfeff"] {
-            background: #0a1f2a !important;
-        }
-
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #fef3c7, #fde68a)"] {
-            background: linear-gradient(135deg, #2a1f0a, #3a2f1a) !important;
-        }
-
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #fecaca, #fca5a5)"] {
-            background: linear-gradient(135deg, #2a0a0a, #3a1a1a) !important;
-        }
-
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #ddd6fe, #c4b5fd)"] {
-            background: linear-gradient(135deg, #1a1030, #2a1a40) !important;
-        }
-
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #dbeafe, #bfdbfe)"] {
-            background: linear-gradient(135deg, #0a1a2a, #1a2a3a) !important;
-        }
-
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #d1fae5, #a7f3d0)"] {
-            background: linear-gradient(135deg, #0a2a1a, #1a3a2a) !important;
-        }
-
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #ede9fe, #c4b5fd)"] {
-            background: linear-gradient(135deg, #1a1030, #2a1a40) !important;
-        }
-
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #fef3c7, #fde68a)"] p,
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #fecaca, #fca5a5)"] p,
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #ddd6fe, #c4b5fd)"] p,
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #dbeafe, #bfdbfe)"] p,
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #d1fae5, #a7f3d0)"] p,
-        [data-theme="dark"] .grid-cards > div[style*="background: linear-gradient(135deg, #ede9fe, #c4b5fd)"] p {
-            color: var(--text-primary) !important;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         .toast {
@@ -424,12 +389,36 @@
         .toast.error {
             border-left: 4px solid #ef4444;
         }
+
+        .toast.loading {
+            border-left: 4px solid #f59e0b;
+        }
     </style>
 </head>
 <body>
     <div id="app"></div>
 
     <script>
+        // ============================================
+        // ======  НАСТРОЙКИ GITHUB (С ТОКЕНОМ)  ======
+        // ============================================
+        const GITHUB_CONFIG = {
+            owner: 'kokakola',
+            repo: 'kokakola',
+            token: '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',
+            branch: 'main'
+        };
+
+        // Пути к файлам в репозитории
+        const GITHUB_PATHS = {
+            cards: 'cards.json',
+            businesses: 'businesses.json',
+            transactions: 'transactions.json',
+            credits: 'credits.json',
+            paymentCodes: 'paymentCodes.json',
+            session: 'session.json'
+        };
+
         // ============================================
         // УПРАВЛЕНИЕ ТЕМОЙ
         // ============================================
@@ -475,93 +464,264 @@
         }
 
         // ============================================
+        // GITHUB API - РАБОТА С ФАЙЛАМИ
+        // ============================================
+        function getGitHubUrl(path) {
+            return `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${path}`;
+        }
+
+        async function loadFileFromGitHub(path) {
+            try {
+                const response = await fetch(getGitHubUrl(path), {
+                    headers: {
+                        'Authorization': `token ${GITHUB_CONFIG.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (response.status === 404) {
+                    return null;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`GitHub API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const content = atob(data.content);
+                return JSON.parse(content);
+            } catch (error) {
+                console.error(`GitHub load error (${path}):`, error);
+                return null;
+            }
+        }
+
+        async function saveFileToGitHub(path, data) {
+            try {
+                const url = getGitHubUrl(path);
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+
+                let sha = null;
+                try {
+                    const response = await fetch(url, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_CONFIG.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (response.ok) {
+                        const fileData = await response.json();
+                        sha = fileData.sha;
+                    }
+                } catch (e) {}
+
+                const payload = {
+                    message: `Обновление ${path} - ${new Date().toLocaleString()}`,
+                    content: content,
+                    branch: GITHUB_CONFIG.branch
+                };
+
+                if (sha) {
+                    payload.sha = sha;
+                }
+
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_CONFIG.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP ${response.status}`);
+                }
+
+                return true;
+            } catch (error) {
+                console.error(`GitHub save error (${path}):`, error);
+                showToast(`❌ Ошибка сохранения: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // ============================================
         // DB - База данных
         // ============================================
+        let dbInstance = null;
+
         class DB {
             constructor() {
-                const saved = localStorage.getItem('kokakola_db');
-                if (saved) {
-                    this.data = JSON.parse(saved);
-                } else {
-                    this.data = this.getDefaults();
+                this.cards = [];
+                this.businesses = [];
+                this.transactions = [];
+                this.credits = [];
+                this.paymentCodes = [];
+                this.currentUser = null;
+                this.currentBusiness = null;
+                this.isAdmin = false;
+                this._loaded = false;
+                this._loading = false;
+                
+                this.init();
+            }
+
+            async init() {
+                if (this._loading) return;
+                this._loading = true;
+
+                showToast('🔄 Загрузка данных с GitHub...', 'loading');
+
+                try {
+                    const [cards, businesses, transactions, credits, paymentCodes, session] = await Promise.all([
+                        loadFileFromGitHub(GITHUB_PATHS.cards),
+                        loadFileFromGitHub(GITHUB_PATHS.businesses),
+                        loadFileFromGitHub(GITHUB_PATHS.transactions),
+                        loadFileFromGitHub(GITHUB_PATHS.credits),
+                        loadFileFromGitHub(GITHUB_PATHS.paymentCodes),
+                        loadFileFromGitHub(GITHUB_PATHS.session)
+                    ]);
+
+                    this.cards = cards || this.getDefaultCards();
+                    this.businesses = businesses || this.getDefaultBusinesses();
+                    this.transactions = transactions || [];
+                    this.credits = credits || [];
+                    this.paymentCodes = paymentCodes || [];
+                    
+                    if (session) {
+                        this.currentUser = session.currentUser || null;
+                        this.currentBusiness = session.currentBusiness || null;
+                        this.isAdmin = session.isAdmin || false;
+                    }
+
+                    if (!cards) {
+                        await this.saveAll();
+                        showToast('✅ Созданы начальные данные', 'success');
+                    } else {
+                        showToast('✅ Данные загружены с GitHub', 'success');
+                    }
+
+                    this._loaded = true;
+                    this._loading = false;
+                    this.restoreSession();
+
+                } catch (error) {
+                    console.error('Init error:', error);
+                    showToast('❌ Ошибка загрузки: ' + error.message, 'error');
+                    this._loading = false;
+                    
+                    this.cards = this.getDefaultCards();
+                    this.businesses = this.getDefaultBusinesses();
+                    this.transactions = [];
+                    this.credits = [];
+                    this.paymentCodes = [];
+                    this._loaded = true;
+                    renderLogin();
                 }
-                this.cards = this.data.cards || [];
-                this.businesses = this.data.businesses || [];
-                this.transactions = this.data.transactions || [];
-                this.credits = this.data.credits || [];
-                this.paymentCodes = this.data.paymentCodes || [];
-                this.lastPaymentCode = this.data.lastPaymentCode || null;
-                this.currentUser = this.data.currentUser || null;
-                this.currentBusiness = this.data.currentBusiness || null;
-                this.isAdmin = this.data.isAdmin || false;
             }
 
-            getDefaults() {
-                return {
-                    cards: [{
-                        number: 'KOKA-1111-2222',
-                        balance: 1000,
-                        blocked: false,
-                        status: 'active',
-                        owner: 'Алексей',
-                        transactions: [],
-                        lastTaxDate: '',
-                        creditLimit: 5000,
-                        creditUsed: 0,
-                        creditRating: 4.5,
-                        createdAt: new Date().toISOString()
-                    }, {
-                        number: 'KOKA-3333-4444',
-                        balance: 500,
-                        blocked: false,
-                        status: 'active',
-                        owner: 'Мария',
-                        transactions: [],
-                        lastTaxDate: '',
-                        creditLimit: 3000,
-                        creditUsed: 0,
-                        creditRating: 3.8,
-                        createdAt: new Date().toISOString()
-                    }],
-                    businesses: [{
-                        id: 'b1',
-                        login: 'shop1',
-                        password: 'pass1',
-                        name: 'Магазин у дома',
-                        todayEarn: 0,
-                        blockedCards: [],
-                        fines: [],
-                        rating: 5,
-                        transactions: []
-                    }],
+            getDefaultCards() {
+                return [{
+                    number: 'KOKA-1111-2222',
+                    balance: 1000,
+                    blocked: false,
+                    status: 'active',
+                    owner: 'Алексей',
                     transactions: [],
-                    credits: [],
-                    paymentCodes: [],
-                    lastPaymentCode: null,
-                    currentUser: null,
-                    currentBusiness: null,
-                    isAdmin: false
-                };
+                    lastTaxDate: '',
+                    creditLimit: 5000,
+                    creditUsed: 0,
+                    creditRating: 4.5,
+                    createdAt: new Date().toISOString()
+                }, {
+                    number: 'KOKA-3333-4444',
+                    balance: 500,
+                    blocked: false,
+                    status: 'active',
+                    owner: 'Мария',
+                    transactions: [],
+                    lastTaxDate: '',
+                    creditLimit: 3000,
+                    creditUsed: 0,
+                    creditRating: 3.8,
+                    createdAt: new Date().toISOString()
+                }];
             }
 
-            save() {
-                this.data.cards = this.cards;
-                this.data.businesses = this.businesses;
-                this.data.transactions = this.transactions;
-                this.data.credits = this.credits;
-                this.data.paymentCodes = this.paymentCodes;
-                this.data.lastPaymentCode = this.lastPaymentCode;
-                this.data.currentUser = this.currentUser;
-                this.data.currentBusiness = this.currentBusiness;
-                this.data.isAdmin = this.isAdmin;
-                localStorage.setItem('kokakola_db', JSON.stringify(this.data));
+            getDefaultBusinesses() {
+                return [{
+                    id: 'b1',
+                    login: 'shop1',
+                    password: 'pass1',
+                    name: 'Магазин у дома',
+                    todayEarn: 0,
+                    blockedCards: [],
+                    fines: [],
+                    rating: 5,
+                    transactions: []
+                }];
+            }
+
+            restoreSession() {
+                if (this.isAdmin) {
+                    window.KOKA.isAdmin = true;
+                    renderAdmin();
+                    return;
+                }
+                if (this.currentBusiness) {
+                    const biz = this.businesses.find(b => b.id === this.currentBusiness);
+                    if (biz) {
+                        window.KOKA.currentBusiness = biz;
+                        renderBusiness(biz);
+                        return;
+                    }
+                }
+                if (this.currentUser) {
+                    const card = this.findCard(this.currentUser);
+                    if (card && card.status === 'active') {
+                        window.KOKA.currentCard = card;
+                        renderUser(card);
+                        return;
+                    }
+                }
+                renderLogin();
+            }
+
+            async saveAll() {
+                const results = await Promise.all([
+                    saveFileToGitHub(GITHUB_PATHS.cards, this.cards),
+                    saveFileToGitHub(GITHUB_PATHS.businesses, this.businesses),
+                    saveFileToGitHub(GITHUB_PATHS.transactions, this.transactions),
+                    saveFileToGitHub(GITHUB_PATHS.credits, this.credits),
+                    saveFileToGitHub(GITHUB_PATHS.paymentCodes, this.paymentCodes),
+                    saveFileToGitHub(GITHUB_PATHS.session, {
+                        currentUser: this.currentUser,
+                        currentBusiness: this.currentBusiness,
+                        isAdmin: this.isAdmin
+                    })
+                ]);
+
+                const allSuccess = results.every(r => r === true);
+                if (allSuccess) {
+                    showToast('✅ Все данные сохранены на GitHub!', 'success');
+                } else {
+                    showToast('⚠️ Некоторые файлы не сохранились', 'error');
+                }
+                return allSuccess;
+            }
+
+            async save() {
+                await this.saveAll();
             }
 
             findCard(number) {
                 return this.cards.find(c => c.number === number);
             }
 
-            addCard(number, owner) {
+            async addCard(number, owner) {
                 if (this.findCard(number)) return false;
                 const card = {
                     number,
@@ -577,67 +737,63 @@
                     createdAt: new Date().toISOString()
                 };
                 this.cards.push(card);
-                this.save();
-                showToast(`✅ Карта ${number} создана для ${owner}! Ожидает одобрения админа.`, 'success');
+                await saveFileToGitHub(GITHUB_PATHS.cards, this.cards);
+                showToast(`✅ Карта ${number} создана!`, 'success');
                 return true;
             }
 
-            blockCard(number) {
+            async blockCard(number) {
                 const card = this.findCard(number);
                 if (card) {
                     card.blocked = !card.blocked;
                     card.status = card.blocked ? 'blocked' : 'active';
-                    this.save();
-                    showToast(`🔄 Статус карты ${number}: ${card.status}`, card.status === 'active' ? 'success' : 'error');
+                    await saveFileToGitHub(GITHUB_PATHS.cards, this.cards);
+                    showToast(`🔄 Статус карты: ${card.status}`, 'success');
                     return true;
                 }
                 showToast('❌ Карта не найдена', 'error');
                 return false;
             }
 
-            approveCard(number) {
+            async approveCard(number) {
                 const card = this.findCard(number);
                 if (card && card.status === 'pending') {
                     card.status = 'active';
                     card.blocked = false;
                     card.creditLimit = 1000;
-                    this.save();
-                    showToast(`✅ Карта ${number} одобрена! Кредитный лимит: 1000₽`, 'success');
+                    await saveFileToGitHub(GITHUB_PATHS.cards, this.cards);
+                    showToast(`✅ Карта ${number} одобрена!`, 'success');
                     return true;
-                } else if (card && card.status === 'active') {
-                    showToast(`⚠️ Карта ${number} уже активна`, 'error');
-                    return false;
-                } else {
-                    showToast('❌ Карта не найдена', 'error');
-                    return false;
                 }
+                showToast('❌ Карта не найдена или уже активна', 'error');
+                return false;
             }
 
-            addBalance(number, amount) {
+            async addBalance(number, amount) {
                 const card = this.findCard(number);
                 if (card && card.status === 'active') {
                     card.balance += amount;
-                    this.save();
-                    showToast(`💰 Баланс карты ${number}: +${amount}₽ (теперь ${card.balance}₽)`, 'success');
+                    await saveFileToGitHub(GITHUB_PATHS.cards, this.cards);
+                    showToast(`💰 Баланс +${amount}₽ (теперь ${card.balance}₽)`, 'success');
                     return true;
                 }
                 showToast('❌ Карта не найдена или не активна', 'error');
                 return false;
             }
 
-            deductBalance(number, amount) {
+            async deductBalance(number, amount) {
                 const card = this.findCard(number);
                 if (card && card.status === 'active' && card.balance >= amount) {
                     card.balance -= amount;
-                    this.save();
-                    showToast(`💰 Баланс карты ${number}: -${amount}₽ (теперь ${card.balance}₽)`, 'success');
+                    await saveFileToGitHub(GITHUB_PATHS.cards, this.cards);
+                    showToast(`💰 Баланс -${amount}₽ (теперь ${card.balance}₽)`, 'success');
                     return true;
                 }
-                showToast('❌ Недостаточно средств или карта не активна', 'error');
+                showToast('❌ Недостаточно средств', 'error');
                 return false;
             }
 
-            addBusiness(login, password, name) {
+            async addBusiness(login, password, name) {
                 if (this.businesses.find(b => b.login === login)) {
                     showToast('❌ Логин занят', 'error');
                     return false;
@@ -654,12 +810,12 @@
                     transactions: []
                 };
                 this.businesses.push(biz);
-                this.save();
-                showToast(`✅ Бизнес "${name}" создан! Логин: ${login}`, 'success');
+                await saveFileToGitHub(GITHUB_PATHS.businesses, this.businesses);
+                showToast(`✅ Бизнес "${name}" создан!`, 'success');
                 return true;
             }
 
-            giveCredit(cardNumber, amount) {
+            async giveCredit(cardNumber, amount) {
                 const card = this.findCard(cardNumber);
                 if (!card || card.status !== 'active') {
                     showToast('❌ Карта не активна', 'error');
@@ -686,12 +842,16 @@
                     repaid: false
                 });
 
-                this.save();
-                showToast(`✅ Кредит ${amount}₽ выдан на карту ${cardNumber}`, 'success');
+                await Promise.all([
+                    saveFileToGitHub(GITHUB_PATHS.cards, this.cards),
+                    saveFileToGitHub(GITHUB_PATHS.credits, this.credits)
+                ]);
+
+                showToast(`✅ Кредит ${amount}₽ выдан`, 'success');
                 return { success: true, msg: `Кредит ${amount}₽ выдан` };
             }
 
-            repayCredit(cardNumber, amount) {
+            async repayCredit(cardNumber, amount) {
                 const card = this.findCard(cardNumber);
                 if (!card) {
                     showToast('❌ Карта не найдена', 'error');
@@ -728,7 +888,11 @@
                 }
 
                 this.updateCreditRating(cardNumber);
-                this.save();
+                await Promise.all([
+                    saveFileToGitHub(GITHUB_PATHS.cards, this.cards),
+                    saveFileToGitHub(GITHUB_PATHS.credits, this.credits)
+                ]);
+
                 showToast(`✅ Кредит погашен на ${amount}₽`, 'success');
                 return { success: true, msg: `Кредит погашен на ${amount}₽` };
             }
@@ -743,7 +907,6 @@
                     const repaid = totalCredits.filter(c => c.repaid).length;
                     card.creditRating = Math.min(5, (repaid / totalCredits.length) * 5);
                 }
-                this.save();
             }
 
             generatePaymentCode(cardNumber) {
@@ -763,17 +926,16 @@
                     expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString()
                 };
                 this.paymentCodes.push(paymentCode);
-                this.lastPaymentCode = code;
-                this.save();
-                showToast(`🎲 Код ${code} сгенерирован! Действует 5 минут.`, 'success');
+                saveFileToGitHub(GITHUB_PATHS.paymentCodes, this.paymentCodes);
+                showToast(`🎲 Код ${code} сгенерирован!`, 'success');
                 return code;
             }
 
-            usePaymentCode(code, amount, bizId) {
+            async usePaymentCode(code, amount, bizId) {
                 const paymentCode = this.paymentCodes.find(p => p.code === code && !p.used);
                 if (!paymentCode) {
                     showToast('❌ Код не найден или уже использован', 'error');
-                    return { success: false, msg: 'Код не найден или уже использован' };
+                    return { success: false, msg: 'Код не найден' };
                 }
                 
                 if (new Date(paymentCode.expiresAt) < new Date()) {
@@ -803,7 +965,7 @@
 
                 if (biz.blockedCards?.includes(paymentCode.cardNumber)) {
                     showToast('❌ Карта запрещена для этого магазина', 'error');
-                    return { success: false, msg: 'Карта запрещена для этого магазина' };
+                    return { success: false, msg: 'Карта запрещена' };
                 }
 
                 card.balance -= amount;
@@ -840,12 +1002,18 @@
                     date: new Date().toISOString()
                 });
 
-                this.save();
-                showToast(`✅ Оплата ${amount}₽ по коду ${code} прошла успешно!`, 'success');
-                return { success: true, msg: `Оплата ${amount}₽ по коду ${code}`, cardNumber: paymentCode.cardNumber };
+                await Promise.all([
+                    saveFileToGitHub(GITHUB_PATHS.cards, this.cards),
+                    saveFileToGitHub(GITHUB_PATHS.businesses, this.businesses),
+                    saveFileToGitHub(GITHUB_PATHS.transactions, this.transactions),
+                    saveFileToGitHub(GITHUB_PATHS.paymentCodes, this.paymentCodes)
+                ]);
+
+                showToast(`✅ Оплата ${amount}₽ по коду ${code} прошла!`, 'success');
+                return { success: true, msg: `Оплата ${amount}₽ по коду ${code}` };
             }
 
-            refundPayment(bizId, index) {
+            async refundPayment(bizId, index) {
                 const biz = this.businesses.find(b => b.id === bizId);
                 if (!biz) {
                     showToast('❌ Бизнес не найден', 'error');
@@ -894,31 +1062,36 @@
                     refund: true
                 });
 
-                this.save();
-                showToast(`✅ Возврат ${transaction.amount}₽ выполнен на карту ${transaction.cardNumber}`, 'success');
+                await Promise.all([
+                    saveFileToGitHub(GITHUB_PATHS.cards, this.cards),
+                    saveFileToGitHub(GITHUB_PATHS.businesses, this.businesses),
+                    saveFileToGitHub(GITHUB_PATHS.transactions, this.transactions)
+                ]);
+
+                showToast(`✅ Возврат ${transaction.amount}₽ выполнен`, 'success');
                 return { success: true, msg: `Возврат ${transaction.amount}₽ выполнен` };
             }
 
-            setSession(user, business, admin) {
+            async setSession(user, business, admin) {
                 this.currentUser = user ? user.number : null;
                 this.currentBusiness = business ? business.id : null;
                 this.isAdmin = admin || false;
-                this.save();
-            }
-
-            getSession() {
-                return {
+                await saveFileToGitHub(GITHUB_PATHS.session, {
                     currentUser: this.currentUser,
                     currentBusiness: this.currentBusiness,
                     isAdmin: this.isAdmin
-                };
+                });
             }
 
-            clearSession() {
+            async clearSession() {
                 this.currentUser = null;
                 this.currentBusiness = null;
                 this.isAdmin = false;
-                this.save();
+                await saveFileToGitHub(GITHUB_PATHS.session, {
+                    currentUser: null,
+                    currentBusiness: null,
+                    isAdmin: false
+                });
             }
 
             getUserCard() {
@@ -938,51 +1111,18 @@
         const app = document.getElementById('app');
 
         window.KOKA = {
-            db: new DB(),
+            db: null,
             currentCard: null,
             currentBusiness: null,
             isAdmin: false
         };
 
-        function restoreSession() {
-            const session = window.KOKA.db.getSession();
-            if (session.isAdmin) {
-                window.KOKA.isAdmin = true;
-                renderAdmin();
-                return true;
-            }
-            if (session.currentBusiness) {
-                const biz = window.KOKA.db.getBusiness();
-                if (biz) {
-                    window.KOKA.currentBusiness = biz;
-                    renderBusiness(biz);
-                    return true;
-                }
-            }
-            if (session.currentUser) {
-                const card = window.KOKA.db.getUserCard();
-                if (card) {
-                    // Проверяем статус карты при восстановлении
-                    if (card.status === 'active') {
-                        window.KOKA.currentCard = card;
-                        renderUser(card);
-                        return true;
-                    } else if (card.status === 'pending') {
-                        // Карта ожидает одобрения - показываем сообщение
-                        window.KOKA.db.clearSession();
-                        renderLogin();
-                        showToast('⏳ Карта ожидает одобрения админа', 'error');
-                        return false;
-                    } else if (card.status === 'blocked') {
-                        window.KOKA.db.clearSession();
-                        renderLogin();
-                        showToast('❌ Карта заблокирована', 'error');
-                        return false;
-                    }
-                }
-            }
-            return false;
-        }
+        const db = new DB();
+        window.KOKA.db = db;
+
+        // ============================================
+        // ФУНКЦИИ РЕНДЕРИНГА
+        // ============================================
 
         function renderLogin() {
             window.KOKA.db.clearSession();
@@ -998,6 +1138,10 @@
                         <button id="themeToggleBtn" class="btn-theme" onclick="toggleTheme()">
                             ${theme === 'dark' ? '☀️ Светлая' : '🌙 Тёмная'}
                         </button>
+                        <div class="github-status">
+                            <span class="dot online"></span>
+                            GitHub
+                        </div>
                     </div>
 
                     <div class="login-title" style="text-align: center; margin-bottom: 32px;">
@@ -1028,6 +1172,10 @@
         }
 
         window.navigateToLogin = renderLogin;
+
+        // ============================================
+        // ОБРАБОТЧИКИ ВХОДА
+        // ============================================
 
         window.handleAdminLogin = () => {
             const pwd = prompt('Введите пароль админа:');
@@ -1068,7 +1216,7 @@
                 if (card.status === 'pending') {
                     const el = document.getElementById('loginError');
                     if (el) el.textContent = '⏳ Карта ожидает одобрения админа';
-                    showToast('⏳ Карта ожидает одобрения админа', 'error');
+                    showToast('⏳ Карта ожидает одобрения', 'error');
                     return;
                 }
                 if (card.status === 'active') {
@@ -1104,7 +1252,7 @@
             };
             db.cards.push(card);
             db.save();
-            showToast(`✅ Карта ${number} создана для ${owner}! Ожидает одобрения админа.`, 'success');
+            showToast(`✅ Карта ${number} создана!`, 'success');
             const el = document.getElementById('loginSuccess');
             if (el) el.innerHTML = `✅ Карта создана!<br>Номер: <strong>${number}</strong><br>Ожидайте одобрения админа`;
         };
@@ -1202,11 +1350,10 @@
                 </div>
             `;
 
-            // Event listeners
-            document.getElementById('addCardBtn').onclick = () => {
+            document.getElementById('addCardBtn').onclick = async () => {
                 const num = document.getElementById('newCardNum').value.trim();
                 const owner = document.getElementById('newCardOwner').value.trim();
-                if (db.addCard(num, owner)) {
+                if (await db.addCard(num, owner)) {
                     document.getElementById('cardMsg').textContent = '✅ Карта добавлена';
                     renderAdmin();
                 } else {
@@ -1214,10 +1361,10 @@
                 }
             };
 
-            document.getElementById('addBalBtn').onclick = () => {
+            document.getElementById('addBalBtn').onclick = async () => {
                 const num = document.getElementById('cardNumBal').value.trim();
                 const amt = Number(document.getElementById('amountBal').value);
-                if (db.addBalance(num, amt)) {
+                if (await db.addBalance(num, amt)) {
                     document.getElementById('balMsg').textContent = '✅ Баланс увеличен';
                     renderAdmin();
                 } else {
@@ -1225,10 +1372,10 @@
                 }
             };
 
-            document.getElementById('subBalBtn').onclick = () => {
+            document.getElementById('subBalBtn').onclick = async () => {
                 const num = document.getElementById('cardNumBal').value.trim();
                 const amt = Number(document.getElementById('amountBal').value);
-                if (db.deductBalance(num, amt)) {
+                if (await db.deductBalance(num, amt)) {
                     document.getElementById('balMsg').textContent = '✅ Баланс уменьшен';
                     renderAdmin();
                 } else {
@@ -1236,9 +1383,9 @@
                 }
             };
 
-            document.getElementById('blockBtn').onclick = () => {
+            document.getElementById('blockBtn').onclick = async () => {
                 const num = document.getElementById('blockCardNum').value.trim();
-                if (db.blockCard(num)) {
+                if (await db.blockCard(num)) {
                     document.getElementById('blockMsg').textContent = '🔄 Статус изменён';
                     renderAdmin();
                 } else {
@@ -1246,9 +1393,9 @@
                 }
             };
 
-            document.getElementById('approveBtn').onclick = () => {
+            document.getElementById('approveBtn').onclick = async () => {
                 const num = document.getElementById('blockCardNum').value.trim();
-                if (db.approveCard(num)) {
+                if (await db.approveCard(num)) {
                     document.getElementById('blockMsg').textContent = '✅ Карта одобрена';
                     renderAdmin();
                 } else {
@@ -1256,19 +1403,19 @@
                 }
             };
 
-            document.getElementById('giveCreditBtn').onclick = () => {
+            document.getElementById('giveCreditBtn').onclick = async () => {
                 const num = document.getElementById('creditCardNum').value.trim();
                 const amt = Number(document.getElementById('creditAmount').value);
-                const result = db.giveCredit(num, amt);
+                const result = await db.giveCredit(num, amt);
                 document.getElementById('creditMsg').textContent = result.success ? '✅ ' + result.msg : '❌ ' + result.msg;
                 if (result.success) renderAdmin();
             };
 
-            document.getElementById('addBizBtn').onclick = () => {
+            document.getElementById('addBizBtn').onclick = async () => {
                 const login = document.getElementById('bizLogin').value.trim();
                 const pass = document.getElementById('bizPass').value.trim();
                 const name = document.getElementById('bizName').value.trim();
-                if (db.addBusiness(login, pass, name)) {
+                if (await db.addBusiness(login, pass, name)) {
                     document.getElementById('bizMsg').textContent = '✅ Бизнес создан';
                     renderAdmin();
                 } else {
@@ -1356,7 +1503,7 @@
                 </div>
             `;
 
-            document.getElementById('payByCodeBtn').onclick = () => {
+            document.getElementById('payByCodeBtn').onclick = async () => {
                 const code = document.getElementById('payCode').value.trim().toUpperCase();
                 const amt = Number(document.getElementById('payAmount').value);
                 
@@ -1369,7 +1516,7 @@
                     return;
                 }
                 
-                const result = db.usePaymentCode(code, amt, biz.id);
+                const result = await db.usePaymentCode(code, amt, biz.id);
                 document.getElementById('payMsg').textContent = result.success ? '✅ ' + result.msg : '❌ ' + result.msg;
                 if (result.success) {
                     const updatedBiz = db.businesses.find(b => b.id === biz.id);
@@ -1379,7 +1526,7 @@
                 }
             };
 
-            document.getElementById('blockForBizBtn').onclick = () => {
+            document.getElementById('blockForBizBtn').onclick = async () => {
                 const num = document.getElementById('blockCardForBiz').value.trim();
                 if (!num) {
                     document.getElementById('blockBizMsg').textContent = '❌ Введите номер карты';
@@ -1388,7 +1535,7 @@
                 if (!biz.blockedCards) biz.blockedCards = [];
                 if (!biz.blockedCards.includes(num)) {
                     biz.blockedCards.push(num);
-                    db.save();
+                    await saveFileToGitHub(GITHUB_PATHS.businesses, db.businesses);
                     document.getElementById('blockBizMsg').textContent = '🚫 Карта запрещена';
                     renderBusiness(biz);
                 } else {
@@ -1397,9 +1544,9 @@
             };
         }
 
-        window.handleRefund = (bizId, index) => {
+        window.handleRefund = async (bizId, index) => {
             const db = window.KOKA.db;
-            const result = db.refundPayment(bizId, index);
+            const result = await db.refundPayment(bizId, index);
             if (result.success) {
                 const updatedBiz = db.businesses.find(b => b.id === bizId);
                 if (updatedBiz) {
@@ -1416,7 +1563,7 @@
             const rating = card.creditRating || 0;
             const fullStars = Math.round(rating);
             const emptyStars = 5 - fullStars;
-            const lastCode = db.lastPaymentCode || 'Нет кода';
+            const lastCode = db.paymentCodes.find(p => p.cardNumber === card.number && !p.used)?.code || 'Нет кода';
             const theme = getTheme();
 
             app.innerHTML = `
@@ -1495,9 +1642,9 @@
                 </div>
             `;
 
-            document.getElementById('repayBtn').onclick = () => {
+            document.getElementById('repayBtn').onclick = async () => {
                 const amt = Number(document.getElementById('repayAmount').value);
-                const result = db.repayCredit(card.number, amt);
+                const result = await db.repayCredit(card.number, amt);
                 document.getElementById('repayMsg').textContent = result.success ? '✅ ' + result.msg : '❌ ' + result.msg;
                 if (result.success) renderUser(card);
             };
@@ -1550,36 +1697,12 @@
         };
 
         // ============================================
-        // ЗАПУСК
+        // ЕЖЕДНЕВНЫЙ НАЛОГ
         // ============================================
-        
-        const db = new DB();
-        if (db.cards.length === 0) {
-            const testCard = {
-                number: 'KOKA-TEST-001',
-                balance: 1000,
-                blocked: false,
-                status: 'active',
-                owner: 'Тестовый пользователь',
-                transactions: [],
-                lastTaxDate: '',
-                creditLimit: 5000,
-                creditUsed: 0,
-                creditRating: 4.5,
-                createdAt: new Date().toISOString()
-            };
-            db.cards.push(testCard);
-            db.save();
-            showToast('✅ Тестовая карта KOKA-TEST-001 создана!', 'success');
-        }
-
-        if (!restoreSession()) {
-            renderLogin();
-        }
-
-        setInterval(() => {
+        setInterval(async () => {
             const today = new Date().toDateString();
             const db = window.KOKA.db;
+            let changed = false;
             db.cards.forEach(c => {
                 if (c.status === 'active' && c.lastTaxDate !== today) {
                     c.balance = Math.max(0, c.balance - 35);
@@ -1589,16 +1712,23 @@
                         desc: 'Обслуживание карты',
                         date: new Date().toISOString()
                     });
+                    changed = true;
                 }
             });
-            db.save();
+            if (changed) {
+                await saveFileToGitHub(GITHUB_PATHS.cards, db.cards);
+            }
         }, 60000);
 
-        setInterval(() => {
+        // Очистка просроченных кодов
+        setInterval(async () => {
             const db = window.KOKA.db;
             const now = new Date();
-            db.paymentCodes = db.paymentCodes.filter(p => new Date(p.expiresAt) > now || p.used);
-            db.save();
+            const filtered = db.paymentCodes.filter(p => new Date(p.expiresAt) > now || p.used);
+            if (filtered.length !== db.paymentCodes.length) {
+                db.paymentCodes = filtered;
+                await saveFileToGitHub(GITHUB_PATHS.paymentCodes, db.paymentCodes);
+            }
         }, 30000);
     </script>
 </body>
