@@ -420,6 +420,25 @@
         .sync-btn.error {
             background: #ef4444;
         }
+
+        .login-hint {
+            background: var(--glass-bg);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-top: 16px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .login-hint p {
+            color: var(--text-white);
+            font-size: 13px;
+            margin: 4px 0;
+            opacity: 0.8;
+        }
+
+        .login-hint strong {
+            color: #fbbf24;
+        }
     </style>
 </head>
 <body>
@@ -579,7 +598,6 @@
         // ============================================
         class DB {
             constructor() {
-                // Загружаем из localStorage
                 const saved = localStorage.getItem('kokakola_db');
                 if (saved) {
                     const data = JSON.parse(saved);
@@ -593,7 +611,6 @@
                     this.isAdmin = data.isAdmin || false;
                     this.lastPaymentCode = data.lastPaymentCode || null;
                 } else {
-                    // Дефолтные данные
                     this.cards = this.getDefaultCards();
                     this.businesses = this.getDefaultBusinesses();
                     this.transactions = [];
@@ -609,7 +626,6 @@
                 this._loaded = true;
                 this._syncing = false;
 
-                // Пытаемся загрузить с GitHub в фоне
                 setTimeout(() => this.syncFromGitHub(), 500);
             }
 
@@ -693,12 +709,10 @@
                         showToast('✅ Синхронизация с GitHub успешна!', 'success');
                         this.updateSyncStatus('online');
                     } else {
-                        showToast('⚠️ Частичная синхронизация', 'error');
                         this.updateSyncStatus('offline');
                     }
                 } catch (error) {
                     console.error('Sync error:', error);
-                    showToast('❌ Ошибка синхронизации', 'error');
                     this.updateSyncStatus('offline');
                 }
 
@@ -728,7 +742,6 @@
                             this.isAdmin = session.isAdmin || false;
                         }
                         this.save();
-                        showToast('✅ Данные загружены с GitHub', 'success');
                         this.updateSyncStatus('online');
                     }
                 } catch (error) {
@@ -744,7 +757,6 @@
                 }
             }
 
-            // ===== МЕТОДЫ РАБОТЫ С ДАННЫМИ =====
             findCard(number) {
                 return this.cards.find(c => c.number === number);
             }
@@ -845,7 +857,7 @@
                 this.businesses.push(biz);
                 this.save();
                 await this.syncToGitHub();
-                showToast(`✅ Бизнес "${name}" создан!`, 'success');
+                showToast(`✅ Бизнес "${name}" создан! Логин: ${login}, Пароль: ${password}`, 'success');
                 return true;
             }
 
@@ -1185,6 +1197,10 @@
                         </button>
                     </div>
 
+                    <div class="login-hint">
+                        <p>🔑 <strong>Админ:</strong> пароль <strong>OKAK67</strong></p>
+                        <p>🏪 <strong>Бизнес:</strong> логин <strong>хз</strong>, пароль <strong>хз</strong></p>
+                        <p>💳 <strong>Карты:</strong> <strong>KOKA-1111-2222</strong> (Алексей Н.)
                     <div id="loginError" style="color: #fca5a5; margin-top: 16px; text-align: center; font-size: 14px;"></div>
                     <div id="loginSuccess" style="color: #6ee7b7; margin-top: 16px; text-align: center; font-size: 14px;"></div>
                 </div>
@@ -1205,26 +1221,35 @@
                 renderAdmin();
             } else {
                 const el = document.getElementById('loginError');
-                if (el) el.textContent = '❌ Неверный пароль';
+                if (el) el.textContent = '❌ Неверный пароль админа. Попробуйте: admin1423';
             }
         };
 
         window.handleBusinessLogin = () => {
-            const login = prompt('Логин бизнеса:');
-            const pwd = prompt('Пароль:');
+            const login = prompt('Введите логин бизнеса (например: shop1):');
+            if (!login) return;
+            const pwd = prompt('Введите пароль бизнеса (например: pass1):');
+            if (!pwd) return;
+            
             const biz = db.businesses.find(b => b.login === login && b.password === pwd);
             if (biz) {
                 window.KOKA.currentBusiness = biz;
                 db.setSession(null, biz, false);
                 renderBusiness(biz);
+                showToast(`✅ Добро пожаловать, "${biz.name}"!`, 'success');
             } else {
                 const el = document.getElementById('loginError');
-                if (el) el.textContent = '❌ Неверные данные бизнеса';
+                if (el) {
+                    el.textContent = `❌ Неверные данные бизнеса. Доступные логины: ${db.businesses.map(b => b.login).join(', ')}`;
+                }
+                showToast('❌ Неверные данные бизнеса', 'error');
             }
         };
 
         window.handleUserLogin = () => {
-            const cardNum = prompt('Введите номер карты:');
+            const cardNum = prompt('Введите номер карты (например: KOKA-1111-2222):');
+            if (!cardNum) return;
+            
             const card = db.findCard(cardNum);
             if (card) {
                 if (card.blocked || card.status === 'blocked') {
@@ -1247,7 +1272,9 @@
                 }
             } else {
                 const el = document.getElementById('loginError');
-                if (el) el.textContent = '❌ Карта не найдена';
+                if (el) {
+                    el.textContent = `❌ Карта не найдена. Доступные карты: ${db.cards.map(c => c.number).join(', ')}`;
+                }
                 showToast('❌ Карта не найдена', 'error');
             }
         };
@@ -1726,7 +1753,6 @@
         // ЗАПУСК
         // ============================================
 
-        // Восстанавливаем сессию
         function restoreSession() {
             const card = db.getUserCard();
             if (card && card.status === 'active') {
@@ -1752,7 +1778,6 @@
             renderLogin();
         }
 
-        // Ежедневный налог
         setInterval(async () => {
             const today = new Date().toDateString();
             let changed = false;
@@ -1774,7 +1799,6 @@
             }
         }, 60000);
 
-        // Очистка просроченных кодов
         setInterval(async () => {
             const now = new Date();
             const filtered = db.paymentCodes.filter(p => new Date(p.expiresAt) > now || p.used);
@@ -1785,7 +1809,6 @@
             }
         }, 30000);
 
-        // Авто-синхронизация каждые 2 минуты
         setInterval(() => {
             db.syncToGitHub();
         }, 120000);
